@@ -7,7 +7,7 @@ Test Setup      Reset Application Create User And Go To Login Page
 *** Test Cases ***
 Login With Correct Credentials
     Set Username  kalle
-    Set Password  kalle123
+    Set Password  kalle1234
     Submit Credentials
     Login Should Succeed
 
@@ -19,9 +19,12 @@ Login With Incorrect Password
 
 Login With Nonexistent Username
     Set Username  kalleFail
-    Set Password  kalle123
+    Set Password  kalle1234
     Submit Credentials
     Login Should Fail With Message  Invalid username or password
+
+
+
 
 *** Keywords ***
 Login Should Succeed
@@ -43,8 +46,30 @@ Set Password
     [Arguments]  ${password}
     Input Password  password  ${password}
 
-*** Keywords ***
+Set Password Confirmation
+    [Arguments]  ${password}
+    Input Password  password_confirmation  ${password}
+
 Reset Application Create User And Go To Login Page
     Reset Application
-    Create User  kalle  kalle123
+    Create User  kalle  kalle1234
     Go To Login Page
+
+Log Out
+    Click Link    Continue to main page
+    Click Button  Logout
+
+Go to Registration Form
+    Click Link  Register
+
+Go to Login
+    Click Link  Login
+
+Submit Registration Form
+    Click Button  Register
+
+Registration Should Succeed
+    Page Should Contain  Welcome to Ohtu Application!
+
+Registration Should Fail
+    Page Should Contain  Username must be at least 3 characters

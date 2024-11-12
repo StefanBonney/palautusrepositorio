@@ -1,3 +1,5 @@
+import re
+
 from entities.user import User
 from repositories.user_repository import (
     user_repository as default_user_repository
@@ -35,12 +37,28 @@ class UserService:
         )
 
         return user
+    
+    def is_username_taken(self, username):
+        return self._user_repository.find_by_username(username) is not None
 
     def validate(self, username, password, password_confirmation):
         if not username or not password:
             raise UserInputError("Username and password are required")
+        
+        # Käyttäjätunnuksen on oltava merkeistä a-z koostuva vähintään 3 merkin pituinen merkkijono
+        if len(username) < 3 or not username.islower() or not username.isalpha():
+            raise UserInputError("Username must be at least 3 characters and contain only a-z")
 
-        # toteuta loput tarkastukset tänne ja nosta virhe virhetilanteissa
+        # joka ei ole vielä käytössä
+        if self.is_username_taken(username):
+            raise UserInputError("Username is already in use")
 
+        # Salasanan on oltava pituudeltaan vähintään 8 merkkiä ja se ei saa koostua pelkästään kirjaimista
+        if len(password) < 8 or password.isalpha():
+            raise UserInputError("Password must be at least 8 characters and contain more than just letters")
+
+        # Password and confirmation must match
+        if password != password_confirmation:
+            raise UserInputError("Password and confirmation do not match")
 
 user_service = UserService()
