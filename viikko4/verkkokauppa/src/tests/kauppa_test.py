@@ -85,4 +85,38 @@ class TestKauppa(unittest.TestCase):
         self.kauppa.tilimaksu("pekka", "12345")
         self.pankki_mock.tilisiirto.assert_called_with("pekka", 42, "12345", ANY, 5)
 
+    def test_aloita_asiointi_nollaa_edellisen_ostoksen(self):
+        """
+        Varmista, että metodin aloita_asiointi kutsuminen nollaa edellisen ostoksen tiedot (eli edellisen ostoksen hinta ei näy uuden ostoksen hinnassa)
+        """
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.tilimaksu("pekka", "12345")
 
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(2)
+        self.kauppa.tilimaksu("matti", "67890")
+        self.pankki_mock.tilisiirto.assert_called_with("matti", 42, "67890", ANY, 3)
+
+    def test_viitenumero_on_uusi_jokaiselle_maksutapahtumalle(self):
+        """
+        Varmista, että kauppa pyytää uuden viitenumeron jokaiselle maksutapahtumalle
+        """
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.tilimaksu("pekka", "12345")
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(2)
+        self.kauppa.tilimaksu("matti", "67890")
+        self.assertEqual(self.viitegeneraattori_mock.uusi.call_count, 2)
+
+    def test_poista_korista_palauttaa_tuotteen_varastoon(self):
+        """
+        Tarkasta viikoilla 1 ja 2 käytetyn coveragen avulla mikä on luokan Kauppa testauskattavuus.
+        Jotain taitaa puuttua. Lisää testi
+        """
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.poista_korista(1)
+        self.varasto_mock.palauta_varastoon.assert_called_once_with(self.varasto_mock.hae_tuote(1))
