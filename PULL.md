@@ -1,0 +1,1 @@
+https://github.com/tkontt/SmartCite/pull/34
